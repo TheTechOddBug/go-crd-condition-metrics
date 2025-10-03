@@ -5,6 +5,17 @@ which are representative—and kept in line with your [CRD status Conditions](ht
 
 This package is built on the [Prometheus GaugeVecSet implementation for go](https://github.com/sourcehawk/go-prometheus-gaugevecset).
 
+## 📚 Table of Contents
+
+1. [Features](#features)
+2. [Installation](#installation)
+3. [Motivation](#motivation)
+4. [Setup: Operator Initialization](#operator-initialization)
+5. [Setup: Controller Usage](#controller-usage)
+6. [PromQL Usage Examples](#promql-usage-examples)
+
+---
+
 ## Features
 - **Ensures consistency between your CRD statuses and your metrics**: The metrics are based on your status conditions and 
    synced when you update the conditions.
@@ -16,20 +27,45 @@ This package is built on the [Prometheus GaugeVecSet implementation for go](http
 
 ---
 
+### Installation
+
+Install the go package
+
+```go
+go get github.com/sourcehawk/go-crd-condition-metrics
+```
+
+Importing it:
+
+```go
+import (
+	ccm "github.com/sourcehawk/go-crd-condition-metrics/pkg/crd-condition-metrics"
+)
+```
+
+---
+
 ## Motivation
 
-Creating metrics for custom resources is an important topic for any operator or controller.
-However, how to standardize these metrics and ensure they consistently represent the state of our custom resources is not 
-something I've seen.
+Creating meaningful metrics for custom resources is an essential part of building observability into any Kubernetes 
+operator or controller. But despite its importance, there’s a lack of standardization—especially when it comes to 
+exposing metrics that accurately reflect the actual `status` of a CRD.
 
-As `status.condtions` have become today's de facto standard to representing state of custom resources, it only makes 
-sense to utilize these conditions for metric recording.
+In Kubernetes, the `status.conditions` field has become the de facto convention for representing the state of a 
+resource. It captures key lifecycle signals such as `Ready`, `Reconciled`, `Degraded`, or `FailedToProvision`, along 
+with rich metadata like `reason`, `status`, and `lastTransitionTime`.
 
-The `ConditionMetricsRecorder` is an implementation wrapper of `GaugeVecSet` for kubernetes operators.
+This package was created to **standardize the way we expose those conditions as metrics**, allowing you to:
+- Derive metrics directly from your resource’s `status.conditions`
+- Keep metric values and labels fully in sync with the real resource state
+- Avoid excessive metric cardinality
+- Gain visibility into when a condition last transitioned
 
-The metric is somewhat inspired by kube-state-metrics patterns for metrics such as `kube_pod_status_phase`. 
-Kube state metrics exports one time series per phase for each (namespace, pod), and marks exactly one as active (1) 
-while the others are inactive (0).
+### Pattern inspiration: kube-state-metrics
+
+This metric strategy is inspired by `kube_pod_status_phase` from [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), 
+which exports one time series per `phase` for each `(namespace, pod)` pair and marks exactly one as active (`1`) while 
+the others are set to inactive (`0`).
 
 Example:
 
@@ -39,16 +75,14 @@ kube_pod_status_phase{namespace="default", pod="nginx", phase="Pending"} 0
 kube_pod_status_phase{namespace="default", pod="nginx", phase="Failed"}  0
 ```
 
-We adopt the same pattern for controller conditions, but we export only one time series per (custom resource, condition) 
-variant, meaning we delete all other variants in the group when we set the metric (e.g. we'd remove the "Pending" and 
-"Failed" metric in `kube_pod_status_phase`). This ensures the cardinality stays under control, as we at most have 
-`CR count * CR ConditionType` amount of series per CRD.
+We adopt a similar idea for `status.conditions`, but with some key differences:
 
-Additionally, rather than using the value 1/0 indicating the activeness of the metric, which in our case is pointless 
-(we only expose the active metric), we set the last transition time of the condition as the value (unix timestamp), 
-allowing us to determine at what point in time the custom resource went into the current state.
+- We expose **only one time series per (custom resource, condition type)**. All other condition variants 
+  (status/reason combinations) are removed when a new one is set.
+- Instead of using binary values (`1` or `0`), we set the **Unix timestamp of `lastTransitionTime`** as the metric 
+  value. This allows you to query when a condition was last updated.
 
-Example metric:
+Example metric from this package:
 
 ```
 my_operator_controller_condition{
@@ -62,7 +96,22 @@ my_operator_controller_condition{
 } 17591743210
 ```
 
-### Operator Initialization
+This makes it easy to build dashboards and alerts like:
+- Show all CRs currently in a non-`Ready` state
+- Alert if a CR has been stuck in a given condition for too long
+- Visualize how long a CR has remained in its current status
+
+### Why this matters
+
+When operating controllers at scale, consistency and cardinality matter. Metrics should reflect the actual resource 
+state—not drift from it—and they should not grow uncontrollably as conditions change.
+
+This package gives you a lightweight, plug-and-play way to track CRD condition metrics correctly, consistently, and 
+with full context.
+
+---
+
+## Operator Initialization
 
 The metric should be initialized and registered once.
 
@@ -119,6 +168,8 @@ func main() {
 }
 ```
 
+---
+
 ## Controller Usage
 
 The easiest drop-in way to start using the metrics recorder is by creating a `SetStatusCondition` wrapper, which
@@ -168,6 +219,8 @@ func (r *MyReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
     return ctrl.Result{}, nil
 }
 ```
+
+---
 
 ## PromQL usage examples
 
