@@ -238,8 +238,6 @@ OperatorConditionsGauge = ccm.NewOperatorConditionsGauge("my_operator")
 > The `namespace` label we set is therefore in most cases labeled as `exported_namespace`.
 > **The examples do not assume this to be the case.**
 
----
-
 Get all CR's of kind `App` that have the condition `Ready` set to `False`.
 
 ```promql
