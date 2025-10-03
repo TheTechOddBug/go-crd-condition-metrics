@@ -15,3 +15,9 @@ the namespace is `my_operator`:
 ```go
 OperatorConditionsGauge = ccm.NewOperatorConditionsGauge("my_operator")
 ```
+
+## CRD Condition Browser Dashboard
+
+![crd_conditions_browser_dashboard_1.png](docs/crd_conditions_browser_dashboard_1.png)
+
+![crd_conditions_browser_dashboard_2.png](docs/crd_conditions_browser_dashboard_2.png)
