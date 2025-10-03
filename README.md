@@ -76,21 +76,21 @@ package my_metrics
 
 import (
     controllermetrics "sigs.k8s.io/controller-runtime/pkg/metrics"
-    ocg "github.com/sourcehawk/go-crd-condition-metrics/pkg/operator-condition-metrics"
+    ccm "github.com/sourcehawk/go-crd-condition-metrics/pkg/crd-condition-metrics"
 )
 
 // We need this variable later to create the ConditionMetricsRecorder
-var OperatorConditionsGauge *ocg.OperatorConditionsGauge
+var OperatorConditionsGauge *ccm.OperatorConditionsGauge
 
 // Initialize the operator condition gauge once
 func init() {
-    OperatorConditionsGauge = ocg.NewOperatorConditionsGauge("my_operator")
+    OperatorConditionsGauge = ccm.NewOperatorConditionsGauge("my_operator")
     controllermetrics.Registry.MustRegister(OperatorConditionsGauge)
 }
 
 // Embed in existing metrics recorder
 type MyControllerRecorder struct {
-    ocg.ConditionMetricRecorder
+	ccm.ConditionMetricRecorder
 }
 ```
 
@@ -103,13 +103,13 @@ package main
 
 import (
     mymetrics "path/to/pkg/my_metrics"
-    ocg "github.com/sourcehawk/go-crd-condition-metrics/pkg/crd-condition-metrics"
+	ccm "github.com/sourcehawk/go-crd-condition-metrics/pkg/crd-condition-metrics"
 )
 
 func main() {
     // ...
     recorder := mymetrics.MyControllerRecorder{
-        ConditionMetricRecorder: ocg.ConditionMetricRecorder{
+        ConditionMetricRecorder: ccm.ConditionMetricRecorder{
             Controller: "my-controller", // unique name per reconciler
             OperatorConditionsGauge: mymetrics.OperatorConditionsGauge,
         },
@@ -181,7 +181,7 @@ initialized with the namespace `my_operator` which results in the metric name be
 
 In code:
 ```go
-OperatorConditionsGauge = ocg.NewOperatorConditionsGauge("my_operator")
+OperatorConditionsGauge = ccm.NewOperatorConditionsGauge("my_operator")
 ```
 
 > [!INFO] Most of the time, the `namespace` label is reserved by the pod scraping the metrics. 

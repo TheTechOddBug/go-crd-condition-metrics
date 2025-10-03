@@ -7,11 +7,11 @@ the name of your metric namespace as input.
 make dashboards METRIC_NAMESPACE=your_operator
 ```
 
-The generated files are placed in `generated/dashboards`.
+The generated files are placed under `generated/dashboards`.
 
 The name of your metric namespace is decided by the initialization of `OperatorConditionsGauge`. For instance, here 
 the namespace is `my_operator`:
 
 ```go
-OperatorConditionsGauge = ocg.NewOperatorConditionsGauge("my_operator")
+OperatorConditionsGauge = ccm.NewOperatorConditionsGauge("my_operator")
 ```
