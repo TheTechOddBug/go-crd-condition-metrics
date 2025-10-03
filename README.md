@@ -1,20 +1,18 @@
 # CRD Condition Metrics
 
 A simple and easy to integrate metric recording utility for kubernetes operators, giving you metrics
-which are representative and kept in line with your [CRD status Conditions](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#typical-status-properties).
+which are representative—and kept in line with your [CRD status Conditions](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#typical-status-properties).
 
 This package is built on the [Prometheus GaugeVecSet implementation for go](https://github.com/sourcehawk/go-prometheus-gaugevecset).
 
-Features:
-- Provides consistency between your custom resource statuses and your metrics:
-   >  The metrics are based on your status conditions and synced when you update the conditions
-- Easy integration:
-   > Get metrics anywhere with little initial setup and a simple method calls
-- Light weight and performant
-   > Small memory footprint at large scale, fast ops
-- Keeps cardinality under control
-    > Only 1 metric series per (custom resource, condition type) combination, even with 10 unique labels!
-- A dashboard is available to get you started!
+## Features
+- **Ensures consistency between your CRD statuses and your metrics**: The metrics are based on your status conditions and 
+   synced when you update the conditions.
+- **Easy integration**: Get metrics anywhere with little initial setup and a simple method calls.
+- **Light weight and performant**: Small memory footprint at large scale, fast ops.
+- **Keeps cardinality under control**: Only 1 metric series per (custom resource, condition type) combination. 
+   Gives you low cardinality even with thousands of unique label combinations.
+- [Dashboards available](/dashboards) to get you started!
   ![img.png](docs/img.png)
 
 ---
