@@ -158,7 +158,7 @@ func (r *MyReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 	
     // ...
 	
-    // Update the status conditions using the recorder (it records the metric if changed)
+    // Update the status conditions using our wrapper function
     if r.SetStatusCondition(cr, condition) {
         if err = r.Status().Update(ctx, cr); err != nil {
             return ctrl.Result{}, err
