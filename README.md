@@ -234,7 +234,7 @@ In code:
 OperatorConditionsGauge = ccm.NewOperatorConditionsGauge("my_operator")
 ```
 
-> [!INFO] Most of the time, the `namespace` label is reserved by the pod scraping the metrics. 
+> [!IMPORTANT] Most of the time, the `namespace` label is reserved by the pod scraping the metrics. 
 > The `namespace` label we set is therefore in most cases labeled as `exported_namespace`.
 > **The examples do not assume this to be the case.**
 
