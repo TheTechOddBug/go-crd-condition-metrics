@@ -16,7 +16,7 @@ const (
 var (
 	indexLabels = []string{"controller", "kind", "name", "namespace"}
 	groupLabels = []string{"condition"}
-	extraLabels = []string{"status", "reason", "id"}
+	infoLabels  = []string{"status", "reason", "id"}
 )
 
 type OperatorConditionsGauge struct {
@@ -32,7 +32,7 @@ type OperatorConditionsGauge struct {
 //	  OperatorConditionsGauge = NewOperatorConditionsGauge("my-operator")
 //	  controllermetrics.Registry.MustRegister(OperatorConditionsGauge)
 //	}
-func NewOperatorConditionsGauge(metricNamespace string) *OperatorConditionsGauge {
+func NewOperatorConditionsGauge(metricNamespace string, extraLabels ...string) *OperatorConditionsGauge {
 	return &OperatorConditionsGauge{
 		metrics.NewGaugeVecSet(
 			metricNamespace,
@@ -41,7 +41,7 @@ func NewOperatorConditionsGauge(metricNamespace string) *OperatorConditionsGauge
 			operatorConditionMetricHelp,
 			indexLabels,
 			groupLabels,
-			extraLabels...,
+			append(infoLabels, extraLabels...)...,
 		),
 	}
 }
@@ -93,11 +93,13 @@ type ConditionMetricRecorder struct {
 func (r *ConditionMetricRecorder) RecordConditionFor(
 	kind string, object ObjectLike,
 	conditionType, conditionStatus, conditionReason string, lastTransitionTime time.Time,
+	extraLabelValues ...string,
 ) {
 	id := fmt.Sprintf("%s/%s", object.GetNamespace(), object.GetName())
 	indexValues := []string{r.Controller, kind, object.GetName(), object.GetNamespace()}
 	groupValues := []string{conditionType}
 	extraValues := []string{conditionStatus, conditionReason, id}
+	extraValues = append(extraValues, extraLabelValues...)
 
 	if lastTransitionTime.IsZero() {
 		lastTransitionTime = time.Now().UTC()

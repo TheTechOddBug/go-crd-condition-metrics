@@ -189,7 +189,8 @@ func (r *MyReconciler) SetStatusCondition(cr *v1.MyCR, cond metav1.Condition) bo
     updated := meta.FindStatusCondition(cr.Status.Conditions, cond.Type)
     if updated != nil {
         r.Recorder.RecordConditionFor(
-            kind, cr, updated.Type, string(updated.Status), updated.Reason, updated.LastTransitionTime,
+            kind, cr, updated.Type, 
+			string(updated.Status), updated.Reason, updated.LastTransitionTime.Time,
         )
     }
     return changed
