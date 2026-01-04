@@ -18,6 +18,10 @@ func makeObj(name, namespace string) *FakeObject {
 	}
 }
 
+const (
+	kind = "MyCRD"
+)
+
 func TestConditionMetricRecorder_RecordConditionFor(t *testing.T) {
 	gauge := NewOperatorConditionsGauge("test_record_transition_and_second_condition")
 	reg := prometheus.NewRegistry()
@@ -28,7 +32,6 @@ func TestConditionMetricRecorder_RecordConditionFor(t *testing.T) {
 		Controller:              "my-controller",
 		OperatorConditionsGauge: gauge,
 	}
-	kind := "MyCRD"
 	name := "cr-1"
 	ns := "prod"
 	transitionTime := time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -75,7 +78,6 @@ func TestConditionMetricRecorder_RecordConditionFor_WithExtraLabels(t *testing.T
 		Controller:              "my-controller",
 		OperatorConditionsGauge: gauge,
 	}
-	kind := "MyCRD"
 	name := "cr-1"
 	ns := "prod"
 	transitionTime := time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -119,7 +121,6 @@ func TestConditionMetricRecorder_RemoveConditionsFor(t *testing.T) {
 		Controller:              "my-controller",
 		OperatorConditionsGauge: gauge,
 	}
-	kind := "MyCRD"
 	name := "cr-2"
 	ns := "staging"
 	transitionTime := time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC)

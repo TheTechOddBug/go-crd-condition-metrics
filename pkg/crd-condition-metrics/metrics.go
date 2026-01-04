@@ -16,7 +16,7 @@ const (
 var (
 	indexLabels = []string{"controller", "kind", "name", "namespace"}
 	groupLabels = []string{"condition"}
-	infoLabels = []string{"status", "reason", "id"}
+	infoLabels  = []string{"status", "reason", "id"}
 )
 
 type OperatorConditionsGauge struct {
@@ -32,7 +32,7 @@ type OperatorConditionsGauge struct {
 //	  OperatorConditionsGauge = NewOperatorConditionsGauge("my-operator")
 //	  controllermetrics.Registry.MustRegister(OperatorConditionsGauge)
 //	}
-func NewOperatorConditionsGauge(metricNamespace string, extraLabels...string) *OperatorConditionsGauge {
+func NewOperatorConditionsGauge(metricNamespace string, extraLabels ...string) *OperatorConditionsGauge {
 	return &OperatorConditionsGauge{
 		metrics.NewGaugeVecSet(
 			metricNamespace,
