@@ -47,11 +47,11 @@ benchmark: ## Run project benchmarks
 test-alerts: ## Lint and unit test the alert rule templates with promtool
 	@command -v promtool >/dev/null 2>&1 || { \
 		echo "Error: promtool is required to test the alert rules."; \
-		echo "Install prometheus from https://prometheus.io/download/ or run 'asdf install'."; \
+		echo "It ships with prometheus: https://prometheus.io/download/"; \
 		exit 1; \
 	}
 	@set -e; \
-	tmpdir=`mktemp -d`; \
+	tmpdir=`mktemp -d "$${TMPDIR:-/tmp}/crd-condition-alerts.XXXXXX"`; \
 	trap 'rm -rf "$$tmpdir"' EXIT; \
 	mkdir -p "$$tmpdir/tests" "$$tmpdir/namespace-label"; \
 	for file in alerts/*.tpl.yaml; do \
@@ -108,10 +108,13 @@ alerts: ## Generate prometheus alert rules from templates
 	$(call require_metric_namespace,alerts)
 	@echo "Generating alerts for $(METRIC_NAMESPACE) (namespace label: $(NAMESPACE_LABEL))…"
 	@mkdir -p generated/alerts
+	@# A prometheus metric namespace may legally contain characters a kubernetes
+	@# resource name may not, so metadata.name is folded to lower case with the
+	@# metric name separators turned into dashes.
 	@find alerts -maxdepth 1 -type f -name '*.tpl.yaml' | while IFS= read -r file; do \
 	  base_name=`basename "$$file" .tpl.yaml`; \
 	  new_file="generated/alerts/$$base_name.yaml"; \
-	  rule_name=`echo "$(METRIC_NAMESPACE)-$$base_name" | tr '_' '-'`; \
+	  rule_name=`echo "$(METRIC_NAMESPACE)-$$base_name" | tr '[:upper:]' '[:lower:]' | tr '_:' '--'`; \
 	  { \
 	    echo "apiVersion: monitoring.coreos.com/v1"; \
 	    echo "kind: PrometheusRule"; \
