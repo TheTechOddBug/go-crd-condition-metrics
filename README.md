@@ -24,6 +24,7 @@ This package is built on the [Prometheus GaugeVecSet implementation for go](http
 - **Keeps cardinality under control**: Only 1 metric series per (custom resource, condition type) combination. 
    Gives you low cardinality even with thousands of unique label combinations.
 - [Dashboards available](/dashboards) to get you started!
+- [Alerts available](/alerts): generic, unit tested alerting rules for the conditions you record.
 
 ---
 
